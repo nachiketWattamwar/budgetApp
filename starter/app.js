@@ -92,7 +92,7 @@ var UIcontroller = (function() {
                 
              type: document.querySelector(DOMStrings.inputType).value,
              description: document.querySelector(DOMStrings.inputDescription).value,
-             value: document.querySelector(DOMStrings.inputValue).value
+             value: parseFloat(document.querySelector(DOMStrings.inputValue).value)
                 };
             },  
             
@@ -167,12 +167,22 @@ var controller = (function(budgetCtlr,UICtlr) {
         var input = UICtlr.getInput(); 
         //console.log(input);
         
+        
+        if(input.description !== "" && isNaN(input.value))
+            {
+                
         //2. add item to budget controller
         var newItem = budgetCtlr.addItem(input.type,input.description,input.value);
         
         //3. adding into UI
         UICtlr.addItemList(newItem,input.type);
         UICtlr.clearFields();
+            }
+        
+        else{
+            alert("Please enter valid description and value.");
+        }
+        
         
         
     };
