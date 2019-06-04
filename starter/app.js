@@ -17,6 +17,14 @@ var budgetController = (function() {
         
     };
     
+    var calculateTotal = function(type){
+        var sum = 0;
+        data.allItems[type].forEach(function(curr){
+            sum+=curr.value;
+            
+        });
+            data.totals[type] = sum;
+    };
     
     var data = { 
         allItems:{
@@ -27,7 +35,9 @@ var budgetController = (function() {
         totals:{
             exp: 0,
             inc: 0
-        }
+        },
+        budget: 0,
+        percentage: -1
     };
     
     
@@ -64,6 +74,30 @@ var budgetController = (function() {
             
         },
         
+        calculateBudget: function(){
+            
+            //calculate income and expense
+            
+            calculateTotal('inc');
+            calculateTotal('exp');
+            
+            //calculate the budget: income - expense
+            data.budget = data.totals.inc - data.totals.exp;
+            //calculate the percentage of  income we spent
+            data.percentage = Math.round((data.totals.exp/data.totals.inc)*100);
+        
+    },
+        
+        
+        getBudget:function(){
+            return{
+                budget: data.budget,
+                percent: data.percentage,
+                totalIncome:data.totals.inc,
+                totalExp:data.totals.exp
+            };
+            
+        },
         testing:function()
         {
         console.log(data);
@@ -81,7 +115,11 @@ var UIcontroller = (function() {
             inputValue: '.add__value',
             addButton: '.add__btn',
             incomeList: '.income__list',
-            expenseList: '.expenses__list'
+            expenseList: '.expenses__list',
+            budgetLabel: '.budget__value',
+            incomeLabel: '.budget__income--value',
+            expensesLabel: '.budget__expenses--value',
+            percentageLabel: '.budget__expenses--percentage'
         };
         
     
@@ -131,6 +169,24 @@ var UIcontroller = (function() {
                 });
             },
             
+            displayBudget: function(obj){
+                document.querySelector(DOMStrings.budgetLabel).textContent = obj.budget;
+                document.querySelector(DOMStrings.incomeLabel).textContent = obj.totalIncome;
+                document.querySelector(DOMStrings.expensesLabel).textContent = obj.totalExp;
+                
+                if(obj.percent > 0)
+                {
+                    document.querySelector(DOMStrings.percentageLabel).textContent = obj.percent + '%';
+                            
+                }
+                else
+                {
+                    document.querySelector(DOMStrings.percentageLabel).textContent = '---';
+                        
+                }
+                
+            },
+            
             DOMStringsFunction:function(){
                 return DOMStrings;
             }
@@ -161,29 +217,40 @@ var controller = (function(budgetCtlr,UICtlr) {
     });       
     };
     
+    var updateBudget = function(){
+      
+        
+        budgetCtlr.calculateBudget(); 
+        
+        var budget = budgetCtlr.getBudget();
+        
+        console.log(budget);
+        
+        
+        UICtlr.displayBudget(budget);
+        
+        
+        
+    };
+    
     var ctrlAddItem = function(){
         
         //1. get input fields
         var input = UICtlr.getInput(); 
         //console.log(input);
         
-        
-        if(input.description !== "" && isNaN(input.value))
-            {
-                
+        if(input.description !== "" && !isNaN(input.value) && input.value > 0)
+        {
         //2. add item to budget controller
-        var newItem = budgetCtlr.addItem(input.type,input.description,input.value);
+            var newItem = budgetCtlr.addItem(input.type,input.description,input.value);
         
         //3. adding into UI
-        UICtlr.addItemList(newItem,input.type);
-        UICtlr.clearFields();
-            }
-        
-        else{
-            alert("Please enter valid description and value.");
+            UICtlr.addItemList(newItem,input.type);
+            UICtlr.clearFields();
+            
+            updateBudget();
         }
-        
-        
+            
         
     };
     
@@ -191,6 +258,12 @@ var controller = (function(budgetCtlr,UICtlr) {
         init:function(){
         console.log('Application has started.');
         setupEventListener();
+        UICtlr.displayBudget({
+                budget: 0,
+                percent: -1,
+                totalIncome: 0,
+                totalExp: 0
+            });
     }
     };
 
