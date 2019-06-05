@@ -86,6 +86,22 @@ var budgetController = (function() {
         
     },
         
+        deleteItem: function(type,id){
+            var ids,index;
+            
+            ids = data.allItems[type].map(function(current){
+                return current.id;
+                
+            });
+            
+            index = ids.indexOf(id);
+            
+            if(index !== -1)
+                {
+                    data.allItems[type].splice(index,1);
+                }
+            
+        },
         
         getBudget:function(){
             return{
@@ -155,6 +171,14 @@ var UIcontroller = (function() {
                 document.querySelector(element).insertAdjacentHTML('beforeend',newHtml);
             },
             
+            
+            deleteItem:function(selectorID){
+            
+                var el = document.getElementById(selectorID);
+                el.parentNode.removeChild(el);
+            
+            
+        },
             clearFields:function(){
                 var fields;
                 var fieldsArr;    
@@ -220,7 +244,7 @@ var controller = (function(budgetCtlr,UICtlr) {
         
         var budget = budgetCtlr.getBudget();
         
-        console.log(budget);
+        //console.log(budget);
         
         UICtlr.displayBudget(budget);
         
@@ -250,6 +274,7 @@ var controller = (function(budgetCtlr,UICtlr) {
     };
     
     var ctrlDeleteItem = function(event){
+        console.log(event);
         var itemID = event.target.parentNode.parentNode.parentNode.parentNode.id;
         var splitID;
         var type;
@@ -258,13 +283,19 @@ var controller = (function(budgetCtlr,UICtlr) {
             {
                 splitID = itemID.split('-');
                 type = splitID[0];
-                ID = splitID[1];
+                ID = parseInt(splitID[1]);
                 
                 // delete from DS
                 
+                budgetCtlr.deleteItem(type,ID);
+                
                 //delete from UI
+                UICtlr.deleteItem(itemID);
+                
                 
                 // update n show new budget
+                
+                updateBudget();
             }
         
     };
