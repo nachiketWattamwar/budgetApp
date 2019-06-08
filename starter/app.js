@@ -170,7 +170,9 @@ var UIcontroller = (function() {
             incomeLabel: '.budget__income--value',
             expensesLabel: '.budget__expenses--value',
             percentageLabel: '.budget__expenses--percentage',
-            container:'.container'
+            container:'.container',
+            expensePercLabel:'.item__percentage',
+            monthLabel:'.budget__title--month'
         };
         
         return {
@@ -207,7 +209,6 @@ var UIcontroller = (function() {
                 document.querySelector(element).insertAdjacentHTML('beforeend',newHtml);
             },
             
-            
             deleteItem:function(selectorID){
             
                 var el = document.getElementById(selectorID);
@@ -215,6 +216,7 @@ var UIcontroller = (function() {
             
             
         },
+            
             clearFields:function(){
                 var fields;
                 var fieldsArr;    
@@ -248,8 +250,60 @@ var UIcontroller = (function() {
             
             DOMStringsFunction:function(){
                 return DOMStrings;
+            },
+         
+            displayPercLabel:function(percentages   ){
+                var fields = document.querySelectorAll(DOMStrings.expensePercLabel);
+                
+                
+                var nodeListForEach = function(list,callback){
+                    for(var i =0;i<list.length;i++)
+                        {
+                            callback(list[i],i);
+                        }
+                };
+                nodeListForEach(fields,function(current,index){
+                    if(percentages[index] > 0)
+                        {
+                        current.textContent = percentages[index] + '%';
+                            
+                        }
+                    else
+                        {
+                            current.textContent = '---';
+                        }
+                    
+                });
+            },
+            numberFormat:function(num,type){
+                
+                num = Math.abs(num);
+                num = num.toFixed(2);
+                console.log(num);
+                
+                
+            },
+            changedType:function(){
+                
+                
+                var fields = document.querySelectorAll(
+                DOMStrings.inputType+','+
+                DOMStrings.inputDescription+','+
+                DOMStrings.inputValue
+                    
+                );
+                
+                
+            },
+            displayMonth:function(){
+                var now = new Date();
+                var year;
+                var month;
+                var months = ['Jan','Feb','March','April','May','June','July','Aug','Sep',' Oct','Nov','Dec'];
+                month = now.getMonth();
+                year = now.getFullYear();
+                document.querySelector(DOMStrings.monthLabel).textContent = months[month]+" "+year;
             }
-                   
         };
                     
 })();
@@ -262,6 +316,7 @@ var controller = (function(budgetCtlr,UICtlr) {
     var DOMstring = UICtlr.DOMStringsFunction();
     document.querySelector(DOMstring.addButton).addEventListener('click',ctrlAddItem);
     document.querySelector(DOMstring.container).addEventListener('click',ctrlDeleteItem);
+    document.querySelector(DOMstring.inputType).addEventListener('change',UICtlr.changedType);
     //event listener when keyboard is pressed.
     document.addEventListener('keypress',function(event){
         
@@ -295,7 +350,9 @@ var controller = (function(budgetCtlr,UICtlr) {
         
         var percentages = budgetCtlr.allPercentages();
         //3. Update the UI.
-        console.log(percentages);
+        //console.log(percentages);
+        
+        UICtlr.displayPercLabel(percentages);
     };
     
     var ctrlAddItem = function(){
@@ -357,6 +414,7 @@ var controller = (function(budgetCtlr,UICtlr) {
         init:function(){
         console.log('Application has started.');
         setupEventListener();
+        UICtlr.displayMonth();
         UICtlr.displayBudget({
                 budget: 0,
                 percent: -1,
