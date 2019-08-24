@@ -1,0 +1,17 @@
+{
+  "name": "devconnector",
+  "version": "1.0.0",
+  "description": "Budget app",
+  "main": "server.js",
+  "scripts": {
+
+  },
+  "author": "Nachiket Wattamwar",
+  "license": "MIT",
+  "dependencies": {
+
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
